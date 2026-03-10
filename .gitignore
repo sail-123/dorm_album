@@ -1,0 +1,15 @@
+# environment variables
+.env
+
+# example env (optional keep)
+.env.local
+
+# credentials
+credentials.json
+
+# python
+__pycache__/
+*.pyc
+
+# streamlit
+.streamlit/secrets.toml
