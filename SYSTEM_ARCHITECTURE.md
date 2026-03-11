@@ -66,6 +66,8 @@ locales
 
 - ja.json
 - en.json
+- id.json
+- my.json
 
 ---
 

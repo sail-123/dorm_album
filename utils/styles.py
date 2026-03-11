@@ -1,3 +1,6 @@
+"""
+モバイルファーストのCSSスタイル
+"""
 import streamlit as st
 
 MOBILE_CSS = """
@@ -9,12 +12,47 @@ MOBILE_CSS = """
 }
 
 .main .block-container {
-    max-width: 500px !important;
+    max-width: 520px !important;
     padding: 0.5rem 0.75rem 4rem;
     margin: 0 auto;
+    color: #1a1a2e;
 }
 
-/* ===== Post card ===== */
+/* Streamlit default text elements */
+.stApp p, .stApp span, .stApp label,
+.stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6,
+.stApp li, .stApp td, .stApp th,
+.stMarkdown, .stMarkdown p,
+[data-testid="stMarkdownContainer"] p,
+[data-testid="stMarkdownContainer"] li {
+    color: #1a1a2e !important;
+}
+
+/* Metric values */
+[data-testid="stMetricValue"],
+[data-testid="stMetricLabel"],
+[data-testid="stMetricDelta"] {
+    color: #1a1a2e !important;
+}
+
+/* Input labels */
+.stTextInput label, .stSelectbox label,
+.stTextArea label, .stNumberInput label,
+.stDateInput label, .stCheckbox label,
+.stRadio label {
+    color: #1a1a2e !important;
+}
+
+/* ===== Card ===== */
+.dorm-card {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* ===== Post card (album) ===== */
 .post-card {
     background: #ffffff;
     border-radius: 16px;
@@ -33,7 +71,6 @@ MOBILE_CSS = """
 .post-author {
     font-weight: 700;
     font-size: 0.95rem;
-    color: #1a1a2e;
 }
 
 .post-time {
@@ -45,7 +82,6 @@ MOBILE_CSS = """
     font-size: 1rem;
     font-weight: 700;
     padding: 0.4rem 1rem 0.2rem;
-    color: #1a1a2e;
 }
 
 .post-caption {
@@ -89,6 +125,47 @@ MOBILE_CSS = """
     margin-top: 0.15rem;
 }
 
+/* ===== Status badge ===== */
+.badge-pending {
+    display: inline-block;
+    background: #fff3cd;
+    color: #856404;
+    padding: 0.15rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-done {
+    display: inline-block;
+    background: #d1e7dd;
+    color: #0a3622;
+    padding: 0.15rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-paid {
+    display: inline-block;
+    background: #d1e7dd;
+    color: #0a3622;
+    padding: 0.15rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-unpaid {
+    display: inline-block;
+    background: #f8d7da;
+    color: #842029;
+    padding: 0.15rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
 /* ===== User badge ===== */
 .user-badge {
     display: inline-block;
@@ -98,23 +175,22 @@ MOBILE_CSS = """
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 600;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 
-/* ===== Home hero ===== */
-.home-hero {
+/* ===== Login hero ===== */
+.login-hero {
     text-align: center;
-    padding: 1.5rem 0 1rem;
+    padding: 2rem 0 1.5rem;
 }
 
-.home-hero h1 {
-    font-size: 2rem;
-    margin-bottom: 0.25rem;
-    color: #1a1a2e;
+.login-hero h1 {
+    font-size: 2.2rem;
+    margin-bottom: 0.3rem;
 }
 
-.home-hero p {
-    color: #444;
+.login-hero p {
+    color: #555;
     font-size: 0.95rem;
 }
 
@@ -123,6 +199,44 @@ div[data-testid="stButton"] > button {
     border-radius: 10px;
     font-size: 0.95rem;
     padding: 0.45rem 1rem;
+    background-color: #667eea;
+    color: #ffffff !important;
+    border: none;
+}
+
+div[data-testid="stButton"] > button:hover,
+div[data-testid="stButton"] > button:focus {
+    background-color: #764ba2;
+    color: #ffffff !important;
+    border: none;
+}
+
+div[data-testid="stButton"] > button[kind="secondary"] {
+    background-color: #e8eaf6;
+    color: #1a1a2e !important;
+    border: 1px solid #c5cae9;
+}
+
+div[data-testid="stButton"] > button[kind="secondary"]:hover {
+    background-color: #c5cae9;
+    color: #1a1a2e !important;
+}
+
+/* Form submit buttons */
+div[data-testid="stFormSubmitButton"] > button {
+    border-radius: 10px;
+    font-size: 0.95rem;
+    padding: 0.45rem 1rem;
+    background-color: #667eea;
+    color: #ffffff !important;
+    border: none;
+}
+
+div[data-testid="stFormSubmitButton"] > button:hover,
+div[data-testid="stFormSubmitButton"] > button:focus {
+    background-color: #764ba2;
+    color: #ffffff !important;
+    border: none;
 }
 
 /* ===== Sidebar ===== */
@@ -139,33 +253,39 @@ section[data-testid="stSidebar"] input {
     background: #f0f2f5 !important;
     border-radius: 8px !important;
 }
+
+section[data-testid="stSidebar"] .stSelectbox > div {
+    color: #1a1a2e !important;
+    background: #f0f2f5 !important;
+}
+
+/* ===== Grid for albums ===== */
+.album-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 1rem;
+}
+
+.album-grid img {
+    border-radius: 8px;
+    width: 100%;
+    object-fit: cover;
+    aspect-ratio: 1;
+}
+
+/* ===== Announcement card ===== */
+.announce-card {
+    background: #fff;
+    border-left: 4px solid #667eea;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
 </style>
 """
 
 
 def apply_styles():
     st.markdown(MOBILE_CSS, unsafe_allow_html=True)
-
-
-def user_name_selector() -> str:
-    """サイドバーに名前入力を表示し、現在の名前を返す。"""
-    if "user_name" not in st.session_state:
-        st.session_state.user_name = ""
-
-    with st.sidebar:
-        st.markdown("## 寮アルバム 📷")
-        st.markdown("---")
-        st.markdown("### 👤 あなたの名前")
-        name = st.text_input(
-            "名前",
-            value=st.session_state.user_name,
-            placeholder="例: 田中太郎",
-            label_visibility="collapsed",
-        )
-        if name != st.session_state.user_name:
-            st.session_state.user_name = name
-
-        if st.session_state.user_name:
-            st.success(f"ログイン中: {st.session_state.user_name}")
-
-    return st.session_state.user_name
