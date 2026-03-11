@@ -35,14 +35,37 @@ SHEET_HEADERS = {
 }
 
 
+def _get_secret(key: str) -> str | None:
+    """Streamlit Secrets → 環境変数の順で値を返す。"""
+    try:
+        val = st.secrets.get(key)
+        if val:
+            return str(val)
+    except Exception:
+        pass
+    return os.getenv(key)
+
+
 def _get_creds():
-    creds_json = os.getenv("GOOGLE_CREDENTIALS_JSON")
+    # 1. JSON文字列形式（Streamlit Secrets / 環境変数）
+    creds_json = _get_secret("GOOGLE_CREDENTIALS_JSON")
     if creds_json:
         creds_dict = json.loads(creds_json)
         return ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
+
+    # 2. Streamlit Secrets のTOMLセクション形式 [gcp_service_account]
+    try:
+        gcp = st.secrets.get("gcp_service_account")
+        if gcp:
+            return ServiceAccountCredentials.from_json_keyfile_dict(dict(gcp), SCOPE)
+    except Exception:
+        pass
+
+    # 3. ローカルの credentials.json ファイル
     creds_file = os.getenv("GOOGLE_CREDENTIALS_FILE", "credentials.json")
     if os.path.exists(creds_file):
         return ServiceAccountCredentials.from_json_keyfile_name(creds_file, SCOPE)
+
     raise ValueError(
         "Google認証情報が見つかりません。GOOGLE_CREDENTIALS_JSON または credentials.json を設定してください"
     )
@@ -55,7 +78,7 @@ def _get_client():
 
 def _get_spreadsheet():
     client = _get_client()
-    spreadsheet_id = os.getenv("SPREADSHEET_ID")
+    spreadsheet_id = _get_secret("SPREADSHEET_ID")
     if not spreadsheet_id:
         raise ValueError("SPREADSHEET_ID が環境変数に設定されていません")
     return client.open_by_key(spreadsheet_id)
