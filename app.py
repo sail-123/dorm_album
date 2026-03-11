@@ -3,6 +3,7 @@
 ログイン画面 + ナビゲーション管理
 """
 import streamlit as st
+st.write(st.secrets.get("SPREADSHEET_ID", "NOT FOUND"))
 from utils.auth import is_logged_in, get_user, login_user, logout, hash_password
 from utils.i18n import t, get_lang, set_lang, LANGUAGES
 from utils.styles import apply_styles
