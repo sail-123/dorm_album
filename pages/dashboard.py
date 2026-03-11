@@ -10,7 +10,7 @@ from utils.gsheets import (
     get_cleaning_tasks, get_members, get_payments,
     get_payment_status, get_announcements, get_albums, get_boards,
 )
-from datetime import date
+from datetime import datetime, timezone, timedelta
 
 apply_styles()
 require_auth()
@@ -35,7 +35,8 @@ except Exception as e:
     st.error(f"{t('error')}: {e}")
     st.stop()
 
-today = str(date.today())
+JST = timezone(timedelta(hours=9))
+today = str(datetime.now(JST).date())
 user_id = user["id"]
 
 # ---- Row 1: 掃除当番 / 未払い集金 ----
