@@ -154,5 +154,11 @@
   "user_id_hint": "Akan dibuat otomatis jika kosong",
   "optional_fields": "Kolom Opsional",
   "gender": "Jenis Kelamin",
-  "nationality": "Kebangsaan"
+  "nationality": "Kebangsaan",
+  "member_detail": "Detail Anggota",
+  "photo": "Foto Profil",
+  "save_photo": "Simpan Foto",
+  "photo_saved": "Foto berhasil disimpan",
+  "delete_photo": "Hapus Foto",
+  "member_photo_deleted": "Foto profil dihapus"
 }

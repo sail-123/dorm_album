@@ -160,5 +160,10 @@
   "optional_fields": "任意項目",
   "gender": "性別",
   "nationality": "国籍",
-  "member_detail": "メンバー詳細"
+  "member_detail": "メンバー詳細",
+  "photo": "顔写真",
+  "save_photo": "写真を保存",
+  "photo_saved": "写真を保存しました",
+  "delete_photo": "顔写真を削除",
+  "member_photo_deleted": "顔写真を削除しました"
 }

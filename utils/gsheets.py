@@ -21,7 +21,7 @@ SCOPE = [
 
 # 各シートのヘッダー定義（DATA_SCHEMA.md 準拠）
 SHEET_HEADERS = {
-    "members": ["id", "name", "room", "phone", "email", "role", "join_date", "password", "gender", "nationality"],
+    "members": ["id", "name", "room", "phone", "email", "role", "join_date", "password", "gender", "nationality", "photo_url"],
     "cleaning_tasks": ["id", "member_id", "location", "dates", "status"],
     "payments": ["id", "title", "amount", "due_date", "description"],
     "payment_status": ["id", "payment_id", "member_id", "paid"],
@@ -160,12 +160,13 @@ def get_members_with_password() -> list:
 
 def add_member(name: str, room: str, phone: str, email: str,
                role: str, join_date: str, password_hash: str,
-               user_id: str = "", gender: str = "", nationality: str = "") -> str:
+               user_id: str = "", gender: str = "", nationality: str = "",
+               photo_url: str = "") -> str:
     ws = _ensure_sheet("members")
     data = {
         "name": name, "room": room, "phone": phone, "email": email,
         "role": role, "join_date": join_date, "password": password_hash,
-        "gender": gender, "nationality": nationality,
+        "gender": gender, "nationality": nationality, "photo_url": photo_url,
     }
     if user_id:
         data["id"] = user_id

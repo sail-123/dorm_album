@@ -7,6 +7,7 @@ from utils.auth import require_auth, get_user, is_admin, hash_password
 from utils.i18n import t
 from utils.styles import apply_styles
 from utils.gsheets import get_members, add_member, update_member, delete_member
+from utils.cloudinary import upload_member_photo, delete_member_photo
 
 apply_styles()
 require_auth()
@@ -85,12 +86,18 @@ else:
         join_date = member.get("join_date", "")
         gender = member.get("gender", "")
         nationality = member.get("nationality", "")
+        photo_url = member.get("photo_url", "")
 
         is_self = member_id == current_user_id
         can_edit = _is_admin or is_self
 
         with st.container(border=True):
-            col_info, col_btn = st.columns([4, 1])
+            col_photo, col_info, col_btn = st.columns([1, 4, 1])
+            with col_photo:
+                if photo_url:
+                    st.image(photo_url, width=60)
+                else:
+                    st.markdown("👤")
             with col_info:
                 role_badge = "🔑" if role == "admin" else "👤"
                 st.markdown(f"**{role_badge} {name}**  　部屋: {room}")
@@ -117,6 +124,8 @@ else:
         if not can_edit and st.session_state.get(f"detail_{member_id}"):
             with st.container(border=True):
                 st.markdown(f"#### {t('member_detail')}")
+                if photo_url:
+                    st.image(photo_url, width=120)
                 dc1, dc2 = st.columns(2)
                 with dc1:
                     st.text_input(t("name"), value=name, disabled=True,
@@ -144,74 +153,110 @@ else:
 
         # 編集フォーム
         if can_edit and st.session_state.get(f"editing_{member_id}"):
-            with st.form(f"edit_form_{member_id}"):
+            with st.container(border=True):
                 st.subheader(t("edit_member"))
-                ec1, ec2 = st.columns(2)
-                with ec1:
-                    e_name = st.text_input(t("name"), value=name)
-                    e_room = st.text_input(t("room"), value=room)
-                    e_phone = st.text_input(t("phone"), value=phone)
-                    e_gender = st.text_input(t("gender"), value=gender)
-                with ec2:
-                    e_email = st.text_input(t("email"), value=email)
-                    e_join = st.text_input(t("join_date"), value=join_date)
-                    e_nationality = st.text_input(t("nationality"), value=nationality)
+
+                # --- 顔写真アップロード・削除（フォーム外で処理）---
+                st.markdown(f"**{t('photo')}**")
+                if photo_url:
+                    ph_col1, ph_col2 = st.columns([3, 1])
+                    with ph_col1:
+                        st.image(photo_url, width=120)
+                    with ph_col2:
+                        if st.button(f"🗑 {t('delete_photo')}", key=f"delete_photo_{member_id}"):
+                            with st.spinner(t("saving")):
+                                try:
+                                    delete_member_photo(photo_url)
+                                    update_member(member_id, {"photo_url": ""})
+                                    st.success(t("member_photo_deleted"))
+                                    st.rerun()
+                                except Exception as e:
+                                    st.error(f"{t('error')}: {e}")
+                uploaded_photo = st.file_uploader(
+                    t("upload_photo"),
+                    type=["jpg", "jpeg", "png"],
+                    key=f"photo_upload_{member_id}",
+                )
+                if uploaded_photo is not None:
+                    if st.button(t("save_photo"), key=f"save_photo_{member_id}"):
+                        with st.spinner(t("uploading")):
+                            try:
+                                new_photo_url = upload_member_photo(uploaded_photo)
+                                update_member(member_id, {"photo_url": new_photo_url})
+                                st.success(t("photo_saved"))
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"{t('error')}: {e}")
+
+                st.divider()
+
+                with st.form(f"edit_form_{member_id}"):
+                    ec1, ec2 = st.columns(2)
+                    with ec1:
+                        e_name = st.text_input(t("name"), value=name)
+                        e_room = st.text_input(t("room"), value=room)
+                        e_phone = st.text_input(t("phone"), value=phone)
+                        e_gender = st.text_input(t("gender"), value=gender)
+                    with ec2:
+                        e_email = st.text_input(t("email"), value=email)
+                        e_join = st.text_input(t("join_date"), value=join_date)
+                        e_nationality = st.text_input(t("nationality"), value=nationality)
+                        if _is_admin:
+                            e_role = st.selectbox(
+                                t("role"), ["member", "admin"],
+                                index=0 if role == "member" else 1,
+                            )
+                        else:
+                            e_role = role
+                    e_pw = st.text_input(t("new_password"), type="password",
+                                         help=t("new_password_hint"))
+                    e_pw2 = st.text_input(t("confirm_password"), type="password")
+
                     if _is_admin:
-                        e_role = st.selectbox(
-                            t("role"), ["member", "admin"],
-                            index=0 if role == "member" else 1,
-                        )
+                        sc1, sc2, sc3 = st.columns(3)
                     else:
-                        e_role = role
-                e_pw = st.text_input(t("new_password"), type="password",
-                                     help=t("new_password_hint"))
-                e_pw2 = st.text_input(t("confirm_password"), type="password")
+                        sc1, sc2 = st.columns(2)
 
-                if _is_admin:
-                    sc1, sc2, sc3 = st.columns(3)
-                else:
-                    sc1, sc2 = st.columns(2)
-
-                with sc1:
-                    save = st.form_submit_button(t("save"), use_container_width=True)
-                with sc2:
-                    cancel = st.form_submit_button(t("cancel"), use_container_width=True)
-                if _is_admin:
-                    with sc3:
-                        delete_btn = st.form_submit_button(
-                            f"🗑 {t('delete')}", use_container_width=True
-                        )
-                else:
-                    delete_btn = False
-
-                if save:
-                    if e_pw and e_pw != e_pw2:
-                        st.error(t("password_mismatch"))
+                    with sc1:
+                        save = st.form_submit_button(t("save"), use_container_width=True)
+                    with sc2:
+                        cancel = st.form_submit_button(t("cancel"), use_container_width=True)
+                    if _is_admin:
+                        with sc3:
+                            delete_btn = st.form_submit_button(
+                                f"🗑 {t('delete')}", use_container_width=True
+                            )
                     else:
-                        update_data = {
-                            "name": e_name, "room": e_room, "phone": e_phone,
-                            "email": e_email, "role": e_role, "join_date": e_join,
-                            "gender": e_gender, "nationality": e_nationality,
-                        }
-                        if e_pw:
-                            update_data["password"] = hash_password(e_pw)
+                        delete_btn = False
+
+                    if save:
+                        if e_pw and e_pw != e_pw2:
+                            st.error(t("password_mismatch"))
+                        else:
+                            update_data = {
+                                "name": e_name, "room": e_room, "phone": e_phone,
+                                "email": e_email, "role": e_role, "join_date": e_join,
+                                "gender": e_gender, "nationality": e_nationality,
+                            }
+                            if e_pw:
+                                update_data["password"] = hash_password(e_pw)
+                            try:
+                                update_member(member_id, update_data)
+                                st.success(t("member_updated"))
+                                del st.session_state[f"editing_{member_id}"]
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"{t('error')}: {e}")
+
+                    if cancel:
+                        del st.session_state[f"editing_{member_id}"]
+                        st.rerun()
+
+                    if delete_btn:
                         try:
-                            update_member(member_id, update_data)
-                            st.success(t("member_updated"))
+                            delete_member(member_id)
+                            st.success(t("member_deleted"))
                             del st.session_state[f"editing_{member_id}"]
                             st.rerun()
                         except Exception as e:
                             st.error(f"{t('error')}: {e}")
-
-                if cancel:
-                    del st.session_state[f"editing_{member_id}"]
-                    st.rerun()
-
-                if delete_btn:
-                    try:
-                        delete_member(member_id)
-                        st.success(t("member_deleted"))
-                        del st.session_state[f"editing_{member_id}"]
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"{t('error')}: {e}")

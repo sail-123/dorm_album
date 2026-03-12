@@ -160,5 +160,10 @@
   "optional_fields": "Optional Fields",
   "gender": "Gender",
   "nationality": "Nationality",
-  "member_detail": "Member Detail"
+  "member_detail": "Member Detail",
+  "photo": "Profile Photo",
+  "save_photo": "Save Photo",
+  "photo_saved": "Photo saved successfully",
+  "delete_photo": "Delete Photo",
+  "member_photo_deleted": "Profile photo deleted"
 }
