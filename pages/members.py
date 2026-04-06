@@ -3,7 +3,7 @@
 admin: CRUD操作可能 / member: 自分の情報のみ編集可
 """
 import streamlit as st
-from utils.auth import require_auth, get_user, is_admin, hash_password
+from utils.auth import require_auth, get_user, is_admin, is_app_admin, hash_password
 from utils.i18n import t
 from utils.styles import apply_styles
 from utils.gsheets import get_members, add_member, update_member, delete_member
@@ -13,13 +13,14 @@ apply_styles()
 require_auth()
 user = get_user()
 _is_admin = is_admin()
+_is_app_admin = is_app_admin()
 current_user_id = str(user["id"])
 
 st.title(f"👥 {t('members')}")
 
 # ---- データ取得 ----
 try:
-    members = get_members()
+    members = [m for m in get_members() if m.get("role") != "app_admin"]
 except Exception as e:
     st.error(f"{t('error')}: {e}")
     st.stop()
@@ -33,7 +34,8 @@ if _is_admin:
                 n_name = st.text_input(t("name"), placeholder="田中 太郎")
                 n_user_id = st.text_input(t("user_id"), placeholder="tanaka01",
                                           help=t("user_id_hint"))
-                n_role = st.selectbox(t("role"), ["member", "admin"])
+                _role_opts = ["member", "admin", "app_admin"] if _is_app_admin else ["member", "admin"]
+                n_role = st.selectbox(t("role"), _role_opts)
             with c2:
                 n_pw = st.text_input(t("new_password"), type="password")
                 n_pw2 = st.text_input(t("confirm_password"), type="password")
@@ -99,7 +101,7 @@ else:
                 else:
                     st.markdown("👤")
             with col_info:
-                role_badge = "🔑" if role == "admin" else "👤"
+                role_badge = "🛡️" if role == "app_admin" else ("🔑" if role == "admin" else "👤")
                 st.markdown(f"**{role_badge} {name}**  　部屋: {room}")
                 extra = "  ".join(filter(None, [
                     f"🚻 {gender}" if gender else "",
@@ -143,7 +145,12 @@ else:
                                   key=f"dv_join_{member_id}")
                     st.text_input(t("nationality"), value=nationality, disabled=True,
                                   key=f"dv_nationality_{member_id}")
-                    role_label = "🔑 admin" if role == "admin" else "👤 member"
+                    if role == "app_admin":
+                        role_label = "🛡️ app_admin"
+                    elif role == "admin":
+                        role_label = "🔑 admin"
+                    else:
+                        role_label = "👤 member"
                     st.text_input(t("role"), value=role_label, disabled=True,
                                   key=f"dv_role_{member_id}")
                 if st.button(t("close"), key=f"close_detail_{member_id}",
@@ -202,9 +209,11 @@ else:
                         e_join = st.text_input(t("join_date"), value=join_date)
                         e_nationality = st.text_input(t("nationality"), value=nationality)
                         if _is_admin:
+                            _edit_role_opts = ["member", "admin", "app_admin"] if _is_app_admin else ["member", "admin"]
+                            _role_idx = _edit_role_opts.index(role) if role in _edit_role_opts else 0
                             e_role = st.selectbox(
-                                t("role"), ["member", "admin"],
-                                index=0 if role == "member" else 1,
+                                t("role"), _edit_role_opts,
+                                index=_role_idx,
                             )
                         else:
                             e_role = role

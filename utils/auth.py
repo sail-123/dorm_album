@@ -45,7 +45,13 @@ def get_user() -> dict:
 
 
 def is_admin() -> bool:
-    return get_user().get("role") == "admin"
+    """adminまたはapp_adminの場合にTrueを返す。"""
+    return get_user().get("role") in ("admin", "app_admin")
+
+
+def is_app_admin() -> bool:
+    """app_admin（アプリケーション管理者）の場合にTrueを返す。"""
+    return get_user().get("role") == "app_admin"
 
 
 def require_auth():
@@ -60,6 +66,14 @@ def require_admin():
     require_auth()
     if not is_admin():
         st.error("この機能は管理者のみ利用可能です。")
+        st.stop()
+
+
+def require_app_admin():
+    """アプリケーション管理者でない場合は処理を停止する。"""
+    require_auth()
+    if not is_app_admin():
+        st.error("この機能はアプリケーション管理者のみ利用可能です。")
         st.stop()
 
 

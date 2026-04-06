@@ -114,7 +114,13 @@ else:
             f'<div class="user-badge">👤 {user["name"]}</div>',
             unsafe_allow_html=True,
         )
-        role_label = "🔑 Admin" if user.get("role") == "admin" else "👥 Member"
+        _role = user.get("role")
+        if _role == "app_admin":
+            role_label = "🛡️ App Admin"
+        elif _role == "admin":
+            role_label = "🔑 Admin"
+        else:
+            role_label = "👥 Member"
         st.caption(role_label)
         if st.button(f"🚪 {t('logout')}", use_container_width=True):
             logout()
@@ -134,7 +140,7 @@ else:
         st.Page("pages/rules.py",          title=t("rules"),          icon="📋"),
     ]
 
-    if user.get("role") == "admin":
+    if user.get("role") in ("admin", "app_admin"):
         pages.append(st.Page("pages/admin.py", title=t("admin"), icon="⚙️"))
 
     pg = st.navigation(pages)

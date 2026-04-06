@@ -3,7 +3,7 @@
 adminのみアクセス可能。各管理機能へのナビゲーション。
 """
 import streamlit as st
-from utils.auth import require_admin, get_user
+from utils.auth import require_admin, get_user, is_app_admin
 from utils.i18n import t
 from utils.styles import apply_styles
 from utils.gsheets import (
@@ -16,7 +16,8 @@ require_admin()  # adminでなければ停止
 user = get_user()
 
 st.title(f"⚙️ {t('admin_panel')}")
-st.caption(f"🔑 {user['name']} ({t('role')}: admin)")
+_role_display = "app_admin" if is_app_admin() else "admin"
+st.caption(f"🔑 {user['name']} ({t('role')}: {_role_display})")
 st.markdown("---")
 
 # ---- データ取得（サマリー用） ----

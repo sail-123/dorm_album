@@ -53,7 +53,6 @@ with col1:
         if today_tasks:
             for task in today_tasks[:3]:
                 name = members_map.get(str(task.get("member_id", "")), "?")
-                st.write(f"📍 {task.get('location', '')}")
                 st.caption(f"👤 {name}")
         else:
             st.success(t("no_cleaning_today"))
